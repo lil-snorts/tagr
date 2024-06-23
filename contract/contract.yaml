@@ -3,7 +3,7 @@ info:
   title: Tagr
   description: |-
     Simple app to help organise local images
-  version: 1.0.0
+  version: 0.0.1
 externalDocs:
   description: View the repo
   url: https://github.com/lil-snorts/tagr
@@ -24,7 +24,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Labels'
+              $ref: '#/components/schemas/LabelsResponse'
         required: true
       responses:
         '200':
@@ -42,7 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Labels'
+                $ref: '#/components/schemas/LabelsResponse'
   /label/{labelName}:
     delete:
       tags:
@@ -78,7 +78,7 @@ paths:
         - in: path
           name: imageId
           schema:
-            type: string
+            $ref: "#/components/schemas/ImageId"
           description: the unique identifier of the image
           required: true
       requestBody:
@@ -86,7 +86,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ImageLabels'
+              $ref: '#/components/schemas/ImageLabelsRequest'
         required: true
       responses:
         '200':
@@ -110,6 +110,7 @@ paths:
           name: page
           schema:
             type: number
+            default: 1
           description: the page'th batch of retrievalLimit photos
         - in: query
           name: labels
@@ -117,13 +118,20 @@ paths:
             type: array
             items:
               type: string
-          description: filters out images that do not contain all labels
+          description: filters out images that do not contain labels
+        - in: query
+          name: unionFind
+          schema:
+            type: boolean
+            default: false
+            description: Set to true if the images must have at-least all provided labels
+          required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Images'
+                $ref: '#/components/schemas/ImagesResponse'
           description: "retrieves the images in question"
   /image:
     post:
@@ -135,11 +143,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ImageUpload'
+              $ref: '#/components/schemas/ImageUploadRequest'
       responses:
         '200':
           description: Successfully handled request
         '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  PostImageResponse:
+                    type: object
+                    properties:
+                      imageId:
+                        $ref: '#/components/schemas/ImageId'
           description: Successfully fully created image
         '400':
           description: Image already exists
@@ -152,7 +169,7 @@ paths:
         - in: path
           name: imageId
           schema:
-            type: string
+            $ref: '#/components/schemas/ImageId'
           description: the unique identifier of the image
           required: true
       responses:
@@ -176,27 +193,36 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Images'
+                $ref: '#/components/schemas/ImagesResponse'
           description: "retrieves the images in question"
 components:
   schemas:
-    ImageUpload:
+    ImageId:
+      type: string
+      pattern: $[A-z0-9]+^
+      description: The unique identifier of the image
+    ImageUploadRequest:
       type: object
+      required:
+        - chunkContent
+        - chunkIndex
       properties:
         chunkIndex:
           description: the current chunkd image. set to -1 with final chunk
           type: number
         chunkContent:
           type: string
-    Labels:
+    LabelsResponse:
       type: object
+      required:
+        - labels
       properties:
         labels:
           type: array
           uniqueItems: true
           items:
             type: string
-    ImageLabels:
+    ImageLabelsRequest:
       type: object
       properties:
         add:
@@ -211,17 +237,20 @@ components:
           minItems: 1
           items:
             type: string
-    Images:
+    ImagesResponse:
       type: object
       properties:
         imageList:
           type: array
           minItems: 0
           items:
-            $ref: '#/components/schemas/Image'
+            $ref: '#/components/schemas/ImageResponse'
           uniqueItems: true
-    Image:
+    ImageResponse:
       type: object
+      required:
+        - imageData
+        - labels
       properties:
         imageData:
           type: string
