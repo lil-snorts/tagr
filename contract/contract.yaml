@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: Tagr
+  description: |-
+    Simple app to help organise local images
+  version: 0.0.1
+externalDocs:
+  description: View the repo
+  url: https://github.com/lil-snorts/tagr
+tags:
+  - name: labels
+    description: Everything to do with organising your images
+  - name: images
+    description: updating the images used by the service
+paths:
+  /label:
+    put:
+      tags:
+        - labels
+      summary: add new labels to the application
+      description: add more labels to the application
+      requestBody:
+        description: Add more labels to the application
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabelsResponse'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request body
+    get:
+      tags:
+        - labels
+      summary: get all labels currently stored
+      description: Get all labels currently stored by the application
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabelsResponse'
+  /label/{labelName}:
+    delete:
+      tags:
+        - labels
+      summary: remove a label from the application
+      description: |-
+        remove labels from the database, 
+        optionally delete all images tagged with this label
+      parameters:
+        - in: path
+          name: labelName
+          schema:
+            type: string
+          description: the unique name of the tag to remove from the database
+          required: true
+        - in: query
+          name: deleteAssociatedImages
+          schema:
+            type: boolean
+            default: false
+          description: |-
+            Set to true if all images with this tag should be removed 
+            from the database
+      responses:
+        '200':
+          description: Successful operation
+  /label/image/{imageId}:
+    put:
+      tags:
+        - labels
+      summary: add or remove labels from an image
+      parameters:
+        - in: path
+          name: imageId
+          schema:
+            $ref: "#/components/schemas/ImageId"
+          description: the unique identifier of the image
+          required: true
+      requestBody:
+        description: Add or remove labels from an image
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageLabelsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successfully completed request
+  /images:
+    get:
+      tags:
+        - images
+      description: Filter and retrieve images
+      summary: get lots of images
+      parameters:
+        - in: query
+          name: retrievalLimit
+          schema:
+            type: number
+            default: 1
+            maximum: 40
+            minimum: 1
+          description: the upper limit of images to retrieve
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 1
+          description: the page'th batch of retrievalLimit photos
+        - in: query
+          name: labels
+          schema:
+            type: array
+            items:
+              type: string
+          description: filters out images that do not contain labels
+        - in: query
+          name: unionFind
+          schema:
+            type: boolean
+            default: false
+            description: Set to true if the images must have at-least all provided labels
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagesResponse'
+          description: "retrieves the images in question"
+  /image:
+    post:
+      tags:
+        - images
+      summary: add new images to the database
+      requestBody:
+        description: upload a new image
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageUploadRequest'
+      responses:
+        '200':
+          description: Successfully handled request
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  PostImageResponse:
+                    type: object
+                    properties:
+                      imageId:
+                        $ref: '#/components/schemas/ImageId'
+          description: Successfully fully created image
+        '400':
+          description: Image already exists
+  /image/{imageId}:
+    delete:
+      summary: delete an image
+      tags:
+        - images
+      parameters:
+        - in: path
+          name: imageId
+          schema:
+            $ref: '#/components/schemas/ImageId'
+          description: the unique identifier of the image
+          required: true
+      responses:
+        '200':
+          description: Successfully deleted image
+        '400':
+          description: Image not found
+    get:
+      summary: get a specific image
+      tags:
+        - images
+      parameters:
+        - in: path
+          name: imageId
+          schema:
+            type: string
+          description: the unique identifier of the image to retrieve
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImagesResponse'
+          description: "retrieves the images in question"
+components:
+  schemas:
+    ImageId:
+      type: string
+      pattern: $[A-z0-9]+^
+      description: The unique identifier of the image
+    ImageUploadRequest:
+      type: object
+      required:
+        - chunkContent
+        - chunkIndex
+      properties:
+        chunkIndex:
+          description: the current chunkd image. set to -1 with final chunk
+          type: number
+        chunkContent:
+          type: string
+    LabelsResponse:
+      type: object
+      required:
+        - labels
+      properties:
+        labels:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+    ImageLabelsRequest:
+      type: object
+      properties:
+        add:
+          description: An array of labels to add to the image
+          type: array
+          minItems: 1
+          items:
+            type: string
+        remove:
+          description: An array of labels to remove from the image
+          type: array
+          minItems: 1
+          items:
+            type: string
+    ImagesResponse:
+      type: object
+      properties:
+        imageList:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/ImageResponse'
+          uniqueItems: true
+    ImageResponse:
+      type: object
+      required:
+        - imageData
+        - labels
+      properties:
+        imageData:
+          type: string
+        labels:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
