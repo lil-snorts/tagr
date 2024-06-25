@@ -4,6 +4,7 @@ info:
   description: |-
     Simple app to help organise local images
   version: 0.0.1
+
 externalDocs:
   description: View the repo
   url: https://github.com/lil-snorts/tagr
