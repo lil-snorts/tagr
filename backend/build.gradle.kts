@@ -1,17 +1,8 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.openapitools:openapi-generator-gradle-plugin:5.6.0")
-    }
-}
 apply(plugin = "org.openapi.generator")
 plugins {
     id("org.springframework.boot") version "3.3.0"
     id("io.spring.dependency-management") version "1.1.5"
-    id("org.openapi.generator") version "6.6.0"
+    id("org.openapi.generator") version "7.6.0"
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
 }
@@ -37,7 +28,16 @@ repositories {
 }
 
 dependencies {
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.1"))
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
+    implementation("jakarta.servlet:jakarta.servlet-api:5.0.0")
+
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("io.swagger.core.v3:swagger-annotations:2.2.10")
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-json")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
@@ -69,13 +69,19 @@ tasks {
 
     // OpenAPI Generator configuration block
     openApiGenerate {
-        generatorName.set("kotlin")
+        generatorName.set("kotlin-spring")
         inputSpec.set("${rootDir}/../contract/contract.yaml")
         outputDir.set("${rootDir}/build/generated")
-        apiPackage.set("org.openapi.example.api")
-        invokerPackage.set("org.openapi.example.invoker")
-        modelPackage.set("org.openapi.example.model")
-        configOptions.set(mapOf("dateLibrary" to "java8"))
+        apiPackage.set("kiwi.tagr.api")
+        invokerPackage.set("kiwi.tagr.invoker")
+        modelPackage.set("kiwi.tagr.model")
+        configOptions.set(mapOf(
+            "library" to "spring-boot",
+            "useSpringBoot3" to "true",
+            "dateLibrary" to "java8",
+            "interfaceOnly" to "true",
+            "documentationProvider" to "none",
+        ))
     }
 
     compileKotlin {
