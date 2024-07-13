@@ -1,0 +1,11 @@
+@dotnet_HostAddress = http://localhost:5199
+
+GET {{dotnet_HostAddress}}/Image/
+Accept: application/json
+
+###
+
+POST {{dotnet_HostAddress}}/Image/
+Accept: application/json
+
+###
