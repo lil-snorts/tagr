@@ -1,0 +1,9 @@
+{
+  "generatorName": "aspnetcore",
+  "inputSpec": "../../../contract/contract.yaml",
+  "additionalProperties": {
+    "packageName": "OpenApi",
+    "aspnetCoreVersion": "6.0",
+    "useSwashbuckle": true
+  }
+}
