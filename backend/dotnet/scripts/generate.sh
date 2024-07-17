@@ -3,7 +3,7 @@
 # Define variables
 GENERATOR_NAME="aspnetcore"
 CONFIG_FILE="config/openapi_generator_config.json"
-OUTPUT_PATH="../source/generated"
+OUTPUT_PATH="../source/Generated"
 
 # Create the output folde, destroying the current data stored there
 

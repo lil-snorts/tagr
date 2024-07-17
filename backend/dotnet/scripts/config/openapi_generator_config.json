@@ -3,7 +3,9 @@
   "inputSpec": "../../../contract/contract.yaml",
   "additionalProperties": {
     "packageName": "OpenApi",
+    "buildTarget": "library",
     "aspnetCoreVersion": "6.0",
-    "useSwashbuckle": true
+    "generateAssemblyInfo": true,
+    "useSwashbuckle": false
   }
 }
