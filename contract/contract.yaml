@@ -3,7 +3,7 @@ info:
   title: Tagr
   description: |-
     Simple app to help organise local images
-  version: 0.0.2
+  version: 0.0.3
 
 externalDocs:
   description: View the repo
@@ -134,17 +134,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ImagesResponse'
           description: "retrieves the images in question"
-  /image/{imageName}:
+  /image/{imageId}:
     post:
       tags:
         - images
-      summary: Add new images to the database
+      summary: add new images to the database
       parameters:
         - in: path
-          name: imageName
-          required: true
+          name: imageId
           schema:
-            $ref: '#/components/schemas/ImageId'
+            $ref: "#/components/schemas/ImageId"
+          description: the unique identifier of the image
+          required: true
+
       requestBody:
         description: upload a new image
         content:
@@ -167,7 +169,6 @@ paths:
           description: Successfully fully created image
         '400':
           description: Image already exists
-  /image/{imageId}:
     delete:
       summary: delete an image
       tags:
@@ -211,16 +212,24 @@ components:
     ImageUploadRequest:
       type: object
       required:
-        - imageName
         - chunkContent
         - chunkIndex
+        - format
       properties:
         chunkIndex:
           description: the current chunkd image. set to -1 with final chunk
           type: number
         chunkContent:
+          description: the substring of the image, encoded in base64
           type: string
-
+        format:
+          description: The image format
+          type: string
+          enum:
+            - jpg
+            - jpeg
+            - png
+            - bmp
     LabelsResponse:
       type: object
       required:
