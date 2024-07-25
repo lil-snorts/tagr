@@ -1,0 +1,261 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "dotnet",
+    "version": "1.0"
+  },
+  "paths": {
+    "/Image": {
+      "post": {
+        "tags": [
+          "Image"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/image/{imageId}": {
+      "delete": {
+        "tags": [
+          "Image"
+        ],
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "$[A-z0-9]+^",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Image"
+        ],
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagesResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/image": {
+      "post": {
+        "tags": [
+          "Image"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagePost201Response"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagePost201Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagePost201Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/images": {
+      "get": {
+        "tags": [
+          "Image"
+        ],
+        "parameters": [
+          {
+            "name": "unionFind",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "retrievalLimit",
+            "in": "query",
+            "schema": {
+              "maximum": 40,
+              "minimum": 1,
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "labels",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagesResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ImagePost201Response": {
+        "type": "object",
+        "properties": {
+          "postImageResponse": {
+            "$ref": "#/components/schemas/ImagePost201ResponsePostImageResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImagePost201ResponsePostImageResponse": {
+        "type": "object",
+        "properties": {
+          "imageId": {
+            "pattern": "$[A-z0-9]+^",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageResponse": {
+        "required": [
+          "imageData",
+          "labels"
+        ],
+        "type": "object",
+        "properties": {
+          "imageData": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageUploadRequest": {
+        "required": [
+          "chunkContent",
+          "chunkIndex"
+        ],
+        "type": "object",
+        "properties": {
+          "chunkIndex": {
+            "type": "number",
+            "format": "double"
+          },
+          "chunkContent": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImagesResponse": {
+        "type": "object",
+        "properties": {
+          "imageList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageResponse"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

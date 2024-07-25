@@ -17,3 +17,7 @@ buildNumber.properties
 .classpath
 /.idea/
 /out/
+/.vs
+/backend/dotnet/.vs
+/backend/dotnet/bin/Debug/net8.0
+/backend/dotnet/obj
