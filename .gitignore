@@ -21,3 +21,6 @@ buildNumber.properties
 /backend/dotnet/.vs
 /backend/dotnet/bin/Debug/net8.0
 /backend/dotnet/obj
+/.github/
+/backend/dotnet/bin/
+/image_storage/

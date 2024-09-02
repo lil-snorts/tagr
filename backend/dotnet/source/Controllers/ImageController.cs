@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using dotnet.Services;
-using dotnet.Services.implementations;
+using dotnet.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
 using OpenApi.Controllers;
 using OpenApi.Models;
@@ -21,7 +21,7 @@ public class ImageController : ImagesApiController
         var imageBytes = System.IO.File.ReadAllBytes(imagePath);
 
         String encodedString = System.Convert.ToBase64String(imageBytes);
-        imageService.CreateNewImage(1, "testOutput", encodedString, "JPG");
+        imageService.CreateNewImage("testOutput", encodedString, "JPG");
         return CreatedAtAction(nameof(TestCreateImage), encodedString, "teststr");
     }
 
@@ -47,14 +47,26 @@ public class ImageController : ImagesApiController
     }
 
     [HttpPost]
-    [Route("/image")]
+    [Route("/image/{imageId}")]
     [Consumes("application/json")]
     [ValidateModelState]
-    [ProducesResponseType(statusCode: 201, type: typeof(ImagePost201Response))]
-    override public IActionResult ImagePost(
-        [FromBody] ImageUploadRequest imageUploadRequest)
+    [ProducesResponseType(statusCode: 201, type: typeof(ImageImageIdPost201Response))]
+    override public IActionResult ImageImageIdPost(
+        [FromRoute(Name = "imageId")][Required][RegularExpression("$[A-z0-9]+^")] 
+        string imageId, 
+        [FromBody] 
+        ImageUploadRequest imageUploadRequest)
     {
-        return CreatedAtAction(nameof(TestCreateImage), "", "teststr");
+        var storedImageId = imageService
+            .CreateNewImage(imageId, imageUploadRequest.ChunkContent, imageUploadRequest.Format.ToString());
+
+        var responseBody = new ImageImageIdPost201ResponsePostImageResponse();
+        responseBody.ImageId = storedImageId;
+
+        ImageImageIdPost201Response response = new ImageImageIdPost201Response();
+        response.PostImageResponse = responseBody;
+        
+        return Ok(response);
     }
 
     [HttpGet]

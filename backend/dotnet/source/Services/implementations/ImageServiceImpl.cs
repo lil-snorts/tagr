@@ -1,18 +1,42 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-namespace dotnet.Services.implementations;
+namespace dotnet.Services.Implementations;
 
 public class ImageServiceImpl : ImageService
 {
     private const string IMAGE_STORAGE_PATH = "..\\..\\image_storage";
+    private string _imageSaveLocation;
 
-    public int CreateNewImage(int Id, string name, string content, String fileExtention)
+    public ImageServiceImpl(string ImageSaveLocation)
     {
+        if (ImageSaveLocation != null)
+        {
+            _imageSaveLocation = ImageSaveLocation;
+        }
+        else
+        {
+            _imageSaveLocation = IMAGE_STORAGE_PATH;
+        }
+    }
+
+    public ImageServiceImpl()
+    {
+        _imageSaveLocation = IMAGE_STORAGE_PATH;
+    }
+
+    public String CreateNewImage(string name, string content, String fileExtention)
+    {
+        if (Directory.GetDirectories(_imageSaveLocation).Length == 0)
+        {
+            System.IO.Directory.CreateDirectory(_imageSaveLocation);
+            System.Console.WriteLine("Created Dir");
+        }
+        else
+        {
+            System.Console.WriteLine($"{_imageSaveLocation} exists");
+        }
+
         byte[] imageBytes = Convert.FromBase64String(content);
-        System.IO.Directory.CreateDirectory(IMAGE_STORAGE_PATH);
-        System.Console.WriteLine("Created Dir");
-
-
         using (MemoryStream memoryStream = new MemoryStream(imageBytes))
         {
             using (Image image = Image.FromStream(memoryStream))
@@ -21,11 +45,19 @@ public class ImageServiceImpl : ImageService
 
                 ImageFormat format = GetImageFormat(fileExtention);
 
-                image.Save(filePath, format);
-                System.Console.WriteLine("Saved image");
+                try
+                {
+                    image.Save(filePath, format);
+                    System.Console.WriteLine("Saved image");
+                }
+                catch (System.Exception exception)
+                {
+                    System.Console.WriteLine(exception.Data);
+                    throw;
+                }
             }
         }
-        return 1;
+        return name;
     }
 
     private static ImageFormat GetImageFormat(string format)

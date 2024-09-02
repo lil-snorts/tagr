@@ -2,6 +2,6 @@
 {
     public interface ImageService
     {
-        int CreateNewImage(int Id, String name, String content, String fileExtention);
+        String CreateNewImage(String name, String content, String fileExtention);
     }
 }
